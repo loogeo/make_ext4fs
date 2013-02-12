@@ -1,0 +1,425 @@
+commit a532ecf00fcfdc334c55de75a63c3d0bc95a2379
+Author: Colin Cross <ccross@android.com>
+Date:   Mon Nov 26 16:32:16 2012 -0800
+
+    make_ext4fs: fix sepolicy lookup for lost+found
+    
+    selabel_lookup needs the full path including mountpoint.
+    
+    Change-Id: Idc0641683a4e4528d94e54be1897315bf5fcdb0d
+
+commit c18120d04f164c00bad9d7006d29b4a795cf5d05
+Author: Colin Cross <ccross@android.com>
+Date:   Tue Nov 20 19:41:42 2012 -0800
+
+    make_ext4fs: insert lost+found directory into filled filesystems
+    
+    Insert a lost+found directory if necessary when creating a filesystem
+    based on a directory structure.  This will make the resulting image
+    clean when tested with e2fsck, allowing e2fsck to be run on all images
+    as a validity test.
+    
+    Change-Id: I81d0b6b4a802713270d3469e5a3bc555b680ec7e
+
+commit 723f1c75295ce812dc062a537856cd5a54277895
+Author: Kenny Root <kroot@google.com>
+Date:   Wed Oct 10 11:13:13 2012 -0700
+
+    Remove HAVE_SELINUX guards
+    
+    Change-Id: Ieda8d8c331e9fccc7dcda228852d408ffc94e98c
+
+commit 7eac42d21d448b1a7a983ede70d34f0927be37ae
+Author: Kenny Root <kroot@google.com>
+Date:   Wed Oct 10 11:16:05 2012 -0700
+
+    make_ext4fs: add const qualifier to mountpoint
+    
+    Silence compiler warning and enforce some const correctness by adding
+    the const qualifier to the mountpoint argument in make_ext4fs_internal
+    
+    Change-Id: I0ce3c04fc36423e43b89e8e8d24735858a55e537
+
+commit f0ee37ffded79afdb03e15ae3a69969d2b7e6079
+Author: Colin Cross <ccross@android.com>
+Date:   Tue Apr 24 17:48:43 2012 -0700
+
+    libsparse: make API sane
+    
+    Replaces the libsparse API with a sane one based on an opaque
+    pointer.
+    
+    Change-Id: I93bc9cf9a6b912a993ef554dbe6ffe2f0f723383
+
+commit dc5abeee1e6fc4827ee0d5ece12aaed2dd56f4c7
+Author: Colin Cross <ccross@android.com>
+Date:   Mon Apr 23 23:20:48 2012 -0700
+
+    Refactor sparse file support into libsparse
+    
+    Minimal refactoring of output_file.c into libsparse in preparation
+    for completely separating libsparse from ext4_utils.
+    
+    Moves output_file.c, backed_block.c, and parts of ext4_utils.c
+    into libsparse.  The only changes to the remanining files in
+    ext4_utils are using the new sparse.h header, and moving the
+    wipe call out of output_file.c and into make_ext4fs.c.
+    
+    Change-Id: I1f66f6c3e05230a350023c5b4ea4422f16a73c4b
+
+commit 2e5c52322d54d0f98d36b499fcaa31a0e84ca87c
+Merge: 68e3dfd 8f9b41d
+Author: Kenny Root <kroot@google.com>
+Date:   Fri Mar 30 20:38:32 2012 -0700
+
+    resolved conflicts for merge of 8f9b41d9 to master
+    
+    Change-Id: I9af02b9bba1176174540c849f905dece8ade54d8
+
+commit 6ece70806883534d29a74b9785871505f71ecc1f
+Author: Stephen Smalley <sds@tycho.nsa.gov>
+Date:   Thu Feb 9 14:19:24 2012 -0500
+
+    Extend make_ext4fs() interface to allow callers to pass selabel_handle.
+    
+    Extend make_ext4fs() to allow callers to pass an selabel_handle for
+    labeling files in the ext4 image.  Previously, this was only done
+    via the _internal() function.  This extends the library interface
+    so that it can be used by the recovery and updater code for labeling
+    files from OTA and update packages.
+    
+    Change-Id: I4f6755fe7c65b69587276d17ef5b971ebec0161f
+
+commit b4eca4b24af9c80ebb2a7fa2ba539a48096b7576
+Author: Stephen Smalley <sds@tycho.nsa.gov>
+Date:   Fri Jan 13 09:00:56 2012 -0500
+
+    Extend make_ext4fs to support setting SELinux security contexts in ext4 images.
+    
+    Extend make_ext4fs with support for looking up the right security context from
+    the file_contexts configuration and setting it in the generated image.  This is
+    similar to the existing support for looking up the UID/GID/mode via
+    android_filesystem_config.h and setting it, but via configuration rather than
+    defined in a header.
+    
+    Change-Id: Ief9c44eeaaca4a44100a384b063f40b185469be3
+
+commit 68e3dfd81ddb9367a0c3e0c72148c23a3227ed48
+Author: Kenny Root <kroot@google.com>
+Date:   Thu Mar 29 14:43:22 2012 -0700
+
+    make_ext4fs: Allow custom filesystem configs
+    
+    Before we used the "fs_config" function from
+    android_filesystem_config.h, but we want to use make_ext4fs with ASEC
+    containers which will not always be mounted in the same place.
+    
+    Bug: 6258335
+    Change-Id: Icf62e3c46425f01434bf92a9823f8d542b0fa5b1
+
+commit 0349bd9f14d252673a7a25767da4a80121aaaaf2
+Author: Anatol Pomazau <anatol@google.com>
+Date:   Wed Jan 11 15:12:27 2012 -0800
+
+    Pass file descriptor instead of file name
+    
+    Passing a file descriptor to make_ext4fs_internal() is more flexible.
+    We can use tmpfile() to create a temporary file.
+    tmpfile() is better than other solutions because it unlinks the file
+    right after creating it, so closing fd effectively removes temp file.
+    Thus we don't have to worry about large temp files accidently left
+    on the filesystem in case of the program crash.
+    
+    Change-Id: Iba3758a0e13a898920d30d7fa5da696c22daa2b7
+
+commit 4605b3fb8a00fa37f617a8d0fe3a095d0503a845
+Author: Raphael Moll <raphael@google.com>
+Date:   Fri Feb 3 23:02:33 2012 -0800
+
+    Adapt ext4_utils for windows.
+    
+    This is not a full port of ext4_utils for windows.
+    Instead it merely enables use to use the library
+    for the 'create an empty fs image' functionality
+    as used by 'fastboot format'.
+    
+    Change-Id: Ia1ffacd64e4233c4fbb369c4ac5927ccd72ac526
+
+commit 354350e3a92955e66abd1ea15536f8b6e5e66493
+Author: Anatol Pomazau <anatol@google.com>
+Date:   Fri Feb 3 18:20:07 2012 -0800
+
+    Revert "Pass file descriptor instead of file name"
+    
+    This reverts commit 89ddaab97e9214cf331baffee2de4595ad14dc79
+
+commit 89ddaab97e9214cf331baffee2de4595ad14dc79
+Author: Anatol Pomazau <anatol@google.com>
+Date:   Wed Jan 11 15:12:27 2012 -0800
+
+    Pass file descriptor instead of file name
+    
+    Passing a file descriptor to make_ext4fs_internal() is more flexible.
+    We can use tmpfile() to create a temporary file.
+    tmpfile() is better than other solutions because it unlinks the file
+    right after creating it, so closing fd effectively removes temp file.
+    Thus we don't have to worry about large temp files accidently left
+    on the filesystem in case of the program crash.
+    
+    Change-Id: I44146704572c314e1d6cfca7ce918efa7fb92a7a
+
+commit ae4f7dccadfafc36470a3e6f3084c6cf3cc63415
+Author: Anatol Pomazau <anatol@google.com>
+Date:   Fri Feb 3 10:57:40 2012 -0800
+
+    Revert "Pass file descriptor instead of file name"
+    
+    This reverts commit 93eb1dc9e68d2e9dea94f56d8bce478c1a52b354
+
+commit 93eb1dc9e68d2e9dea94f56d8bce478c1a52b354
+Author: Anatol Pomazau <anatol@google.com>
+Date:   Wed Jan 11 15:12:27 2012 -0800
+
+    Pass file descriptor instead of file name
+    
+    Passing a file descriptor to make_ext4fs_internal() is more flexible.
+    We can use tmpfile() to create a temporary file.
+    tmpfile() is better than other solutions because it unlinks the file
+    right after creating it, so closing fd effectively removes temp file.
+    Thus we don't have to worry about large temp files accidently left
+    on the filesystem in case of the program crash.
+    
+    Change-Id: I44109e98854c314e1d6cfca7ce918efa7fb92a7a
+
+commit 88833a6277f305b6a03ff29d8e9ffe717ddb4045
+Author: Ken Sumrall <ksumrall@android.com>
+Date:   Wed Jul 13 17:27:07 2011 -0700
+
+    Round down the filesystem size to a multiple of the block size
+    
+    If it's not a multiple of the block size, then errors are generated
+    when making sparse images.  This doesn't change the size of the generated
+    filesystem, because partial blocks are not included in the filesystem.
+    
+    Change-Id: Ifc00ef7961f651ce22c6400759eadce2775d7811
+
+commit 107a9f161babc20daf915311146b0e864d3b4157
+Author: Ken Sumrall <ksumrall@android.com>
+Date:   Wed Jun 29 20:28:30 2011 -0700
+
+    Bug fixes to make_ext4fs
+    
+    Fix definition of uuid struct.
+    Properly set the block_group number in each backup copy of the superblock.
+    Adjust the info.total_inodes field after rounding up the inodes per block group.
+    Add the option -t to initialize all the inode tables.  If also specified with
+    the -s option, use the CHUNK_TYPE_FILL sparse records to initialize them.
+    
+    Change-Id: Idd8bcee1b9bde3e82ad8da89ef974fbc12d7a6c6
+
+commit 06c35f935a7adadceb9ee326b3231f952f6ad203
+Merge: 480a3b1 96cc54a
+Author: Colin Cross <ccross@android.com>
+Date:   Sat Apr 30 19:08:09 2011 -0700
+
+    Merge "Make inodes per group a multiple of inodes per block"
+
+commit 96cc54a9bbc788673b7a38c23160d137211fd983
+Author: Colin Cross <ccross@android.com>
+Date:   Fri Apr 29 16:45:48 2011 -0700
+
+    Make inodes per group a multiple of inodes per block
+    
+    Kernel version 2.6.37 and later refuse to write to filesystems
+    for which inodes per group is not divisible by inodes per block.
+    Round the inodes per group up.
+    
+    Change-Id: I9eb4fb5dd616a8abfd2f1fdc4b7d05538a2fc8fe
+
+commit 2ae7663e1e064000356ee9e49ebd08bdddc545f9
+Author: Ken Sumrall <ksumrall@android.com>
+Date:   Wed Mar 23 22:08:53 2011 -0700
+
+    Implement poor man's exception handling to prevent errors from killling recovery
+    
+    make_ext4fs was originally designed to be a standalone program, and the
+    error() macro calls exit() after printing a diagnostic.  However, when
+    it was turned into a library that recovery links against, calling exit()
+    kills the entire recovery process, which the kernel starts back up,
+    which dies, and the cycle continues.
+    
+    This changes make_ext4fs to use setjmp() early, and changes error to
+    use longjmp to return to that point.  When longjmp is called, the
+    error handler just returns an error.  If it was invoked as a standalone
+    program, this causes the program to exit with an error.  If it was
+    invoked as a library function, the error return is gracefully handled
+    by recovery.
+    
+    Change-Id: Iad50f46cac0ac399b5cdfd083d5712f88a10e48e
+
+commit c2470654d4b4db09a7052fc5fa108ac21f1b1948
+Author: Colin Cross <ccross@android.com>
+Date:   Wed Jan 26 16:39:46 2011 -0800
+
+    ext4_utils: Add support for wipe option, and wipe by default in recovery
+    
+    Adds a -w option to make_ext4fs, which will attempt to use the
+    BLKSECDISCARD ioctl to erase the partition in order to avoid
+    leaving old data where it could be recovered, and to improve
+    wear levelling after a reformat.
+    
+    Also causes factory reset through recovery to do a wipe.
+    
+    Change-Id: Ibe34bbd84552e526be6bd041024a950806aca6b4
+
+commit 983fb19d83d2391b19b289fc150495d8642378c4
+Author: Ken Sumrall <ksumrall@android.com>
+Date:   Wed Jan 19 17:15:42 2011 -0800
+
+    Change the API for make_ext4fs() to better match the user's needs
+    
+    The current make_ext4fs() is renamed make_ext4fs_internal(), and a new
+    make_ext4fs() has a simplified interface that supports the needs of
+    recovery and updater packages that call it.
+    
+    Change-Id: I9e897f1f442c7f5060f8623ea74c3cf6a9c023e4
+
+commit 435a8b61e925e3efb22fce08612efe210e83f791
+Author: Ken Sumrall <ksumrall@android.com>
+Date:   Fri Jan 14 18:33:06 2011 -0800
+
+    Add the ability to specify a reserved space size when making filesystems.
+    
+    If you specify a negative length when making a filesystem, then the
+    filesystem size is the size of the partiton (or image file) minus
+    the absolute value of the negative length specified.
+    
+    Change-Id: I53e3b6de2ea692f4678682c3f49ff36429d9ad31
+
+commit 2e905e5f2a3df605c68cb8633580c918e9f4ba71
+Author: Colin Cross <ccross@android.com>
+Date:   Wed Dec 29 14:20:53 2010 -0800
+
+    ext4_utils: Fix warnings
+    
+    Change-Id: Ibeb2001a1ac8cfedd9fced11b17afba4940b6bd5
+
+commit 757ace516d8e4350616b5fd10da0c982d3d5ec74
+Author: Colin Cross <ccross@android.com>
+Date:   Wed Dec 29 13:57:01 2010 -0800
+
+    ext4_utils: Add an optional CRC chunk at the end of sparse files
+    
+    Change-Id: Ibfcf1cdeab47ca13870350184abf83e530acbc07
+
+commit b781330b1acae2e5706bbda8d81e5f7575f40e2a
+Author: Colin Cross <ccross@android.com>
+Date:   Wed Dec 22 18:41:13 2010 -0800
+
+    ext4_utils: Get rid of CRC in sparse file header
+    
+    Also removes the need to seek in the output file, allowing
+    stdin and stdout to be used for input and output.
+    
+    Change-Id: I93cbe335d9cc83a6d21daa696af2cb54952dcc9f
+
+commit 33f96c66e9a1f2e266a75e5e84c091dffa6ef118
+Author: Colin Cross <ccross@android.com>
+Date:   Wed Dec 22 18:40:14 2010 -0800
+
+    ext4_utils: Add support for >2G input files
+    
+    Change-Id: I6af69d676610099d3912e90fcab3cbdc27ace4e2
+
+commit 22742ce739a046a079b2e1b03342a25472dfa352
+Author: Colin Cross <ccross@android.com>
+Date:   Wed Dec 22 16:01:52 2010 -0800
+
+    ext4_utils: Move bg_desc_reserved_blocks from aux_info to info
+    
+    Change-Id: Ic635afbb8819a00ca23ba2f93413fe707e2eec87
+
+commit 75249edab0b22ea9aae9c7278b9f2c196c7d25d4
+Author: Ken Sumrall <ksumrall@android.com>
+Date:   Fri Aug 13 16:04:49 2010 -0700
+
+    Add support for sparse ext4 image creation.
+    
+    This adds the -s option to the make_ext4fs tool, which now creates
+    "sparse" filesystem images, which is very useful for the large 32 Gbyte
+    filesystems we are now building.
+    This check-in also fixes make_ext4fs to properly create filesystems
+    larger thatn 4 Gbytes on 64-bit Linux, 32-bit android and Macs.
+    
+    Change-Id: Ie5838492fcf944f5c875481693c0dbd7013deae4
+
+commit de61f980c7b034eefac6e0ace718b3c1eb3f6252
+Author: Colin Cross <ccross@android.com>
+Date:   Wed Aug 4 15:06:09 2010 -0700
+
+    Set timestamps on files based on source files
+    
+    Use the modification time of the source files to set the modification
+    time, access time, and creation times in the filesystem image.
+    
+    Change-Id: I720acba5ec435ceae92bb1653e3cc7545327b6ef
+
+commit e4b5ae8ab07e698b95f004c9226000b02f853abc
+Author: Colin Cross <ccross@android.com>
+Date:   Tue Aug 3 14:10:07 2010 -0700
+
+    Create a journal by default
+    
+    Change-Id: I7ab4e502ba4a0f1f3ae85d6d25f3936f4b66e5e8
+
+commit 263eefd9fb9608432636c903423e43848e69f39d
+Author: Doug Zongker <dougz@android.com>
+Date:   Tue Jun 29 17:23:14 2010 -0700
+
+    add make_ext4fs to the libext4_utils
+    
+    Move the bulk of make_ext4fs into libext4_utils, leaving a main() that
+    does only option parsing.  Add reset functionality so that
+    make_ext4fs() can be called multiple times within a process.
+    
+    Change-Id: Ia09a2385eab32bf3ca9eb9257c4f9df2c85e55be
+
+commit 881cca2f88ddcce86483b3ba95546b5641de8c0e
+Author: Colin Cross <ccross@android.com>
+Date:   Sun Jun 20 23:57:06 2010 -0700
+
+    Split out libext4_utils
+    
+    Change-Id: I12aa52b75607379add2669fddba4cd7dc2bb527f
+
+commit 8aef66d2125af8de7672a12895276802fcc1948f
+Author: Colin Cross <ccross@android.com>
+Date:   Sun Jun 20 23:22:12 2010 -0700
+
+    Fix whitespace
+    
+    Change-Id: I37da6c38cd33ae22a0578ed8e91650e35972bf6a
+
+commit 7a8bee7653c393d8da0e28668cb51d3ccab793e8
+Author: Colin Cross <ccross@android.com>
+Date:   Sun Jun 20 14:53:14 2010 -0700
+
+    Add support for writing a gzip compressed image
+    
+    Change-Id: Ica2ff90060f6a4ced2c671084205b58eede66cdf
+
+commit 4b83b8acdcc4dad375adaf0f3b41fc41b22ee742
+Author: Colin Cross <ccross@android.com>
+Date:   Thu Jun 17 20:16:30 2010 -0700
+
+    Fix ifdefs for linux
+    
+    Change-Id: Iaf6fcd0f691e14edc82c9d1286c3d1b8ebeb1237
+
+commit ec0a2e83dc66d67addeb90e83144187691852a3e
+Author: Colin Cross <ccross@android.com>
+Date:   Fri Jun 11 14:21:37 2010 -0700
+
+    Initial commit of ext4_utils
+    
+    Change-Id: I911d5b7fd7170ec81d544850717d8e69976e272b
